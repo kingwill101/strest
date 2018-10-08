@@ -1,0 +1,18 @@
+version: 1                            # only version at the moment
+
+requests:                             # all test requests will be listed here
+  userRequest:                        # name the request however you want
+    url: http://localhost:3001/user   # required
+    method: GET                       # required
+    data:                             # valid data types: params, json and raw
+      params:
+        name: testUser
+    log: true                         # false by default. This will log all response information in the console
+   
+  userRequest22:                           
+     url: http://localhost:3001/test   
+     method: GET                       
+     data:                             
+       params:
+         name: testUser
+     log: true                         
