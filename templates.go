@@ -2,7 +2,6 @@ package strest
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"text/template"
 )
@@ -19,8 +18,8 @@ func ParseField(in string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("PARSE  IN -->", in)
-	fmt.Println("PARSE OUT -->", buf.String())
+	// fmt.Println("PARSE  IN -->", in)
+	// fmt.Println("PARSE OUT -->", buf.String())
 
 	return buf.String()
 }

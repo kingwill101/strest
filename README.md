@@ -49,6 +49,8 @@ requests:
 All template functions are golang based so you may need to have a look at 
 https://golang.org/pkg/text/template/ for better basic understanding. 
 
+`using tempalte functions within JSON fields are not supported at this time`
+
 ### default template functions
 
 `ENV`
@@ -58,7 +60,7 @@ version: 1
 requests:
   userRequest:
     ...
-    url: 'http://{{ ENV "ADDRESS" }}:8080/user'
+    url: "http://{{ ENV `ADDRESS` }}:8080/user"
     data:
         params: 
             name: '{{ ENV "PARAM"}}'

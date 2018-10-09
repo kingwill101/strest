@@ -45,7 +45,7 @@ func (v *Validator) RegisterFunc(val ValidaorFunc) {
 }
 
 func (v *Validator) Validate(sreq *strest.Request, r *http.Response) {
-	fmt.Println("Validating plugins")
+	// fmt.Println("Validating plugins")
 	for _, val := range v.Validators {
 		v.Lock()
 		val.Validate(sreq, r)
@@ -66,9 +66,9 @@ func (lp *LogPrint) Validate(sreq *strest.Request, r *http.Response) bool {
 type LogIncoming struct{}
 
 func (li *LogIncoming) Validate(sreq *strest.Request, r *http.Response) bool {
-	fmt.Println("request form:", r.Request.Form)
+	// fmt.Println("request form:", r.Request.Form)
 	fmt.Println("response Headers:", r.Request.Header)
-	body, _ := strest.ReadBody(r)
-	fmt.Println("request Body:", string(body))
+	// body, _ := strest.ReadBody(r)
+	// fmt.Println("request Body:", string(body))
 	return true
 }

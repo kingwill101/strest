@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -113,12 +114,21 @@ func SendRequest(r Request) (*http.Response, error) {
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 		} else if len(r.Data.JSON) > 0 {
+			fmt.Println("JSON REQUEST")
 
 			jso, jerr := json.Marshal(r.Data.JSON)
 
 			if jerr != nil {
 				return &http.Response{}, jerr
 			}
+
+			input_quoted := strconv.Quote(string(jso))
+			input_unquoted, err := strconv.Unquote(input_quoted)
+			if err != nil {
+				panic("oops " + err.Error())
+			}
+
+			fmt.Println("fasdfad --> ", ParseField(input_unquoted))
 
 			req, err = post(
 				urlBuilder.String(), strings.NewReader(string(jso)))
@@ -190,4 +200,11 @@ func ReadBody(r *http.Response) (string, error) {
 
 	return string(bodyBytes), nil
 
+}
+
+func RequestKeyExist(key string, p Payload) bool {
+	if _, ok := p.Request[key]; !ok {
+		return false
+	}
+	return true
 }

@@ -21,22 +21,21 @@ requests:
 #     delay: 500
 
   helloWorld:
-    url: 'http://{{ ENV "ADDRESS" }}/helloworld'
+    url: 'http://localhost:8080/helloworld'
     method: POST
     data:
         params: 
-            name: '{{ ENV "PARAM"}}'
+            name: 'Glenfor d'
         headers: 
             Authentication: Bearer
-            SomeHEADER: '{{ ENV "BEARER" }}'
         json:
             username: kingwill101
-            password: dadfd
+            password: "{{ ENV `SOMETHING`}}"
     log: true
     # delay: 5000
-    repeat: 2
-    validation:
-        body: '{"password":"somepassword","username":"kingwill101"}'
+    # repeat: 2
+    # validation:
+    #     body: '{"password":"somepassword","username":"kingwill101"}'
 
 
 #   fake:

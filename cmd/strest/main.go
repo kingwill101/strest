@@ -24,9 +24,9 @@ func main() {
 
 	// fmt.Println("ADDRESS", os.GetEnv("ADDRESS"))
 	validator := validators.NewValidator()
-	validator.Register(&validators.StatusCodeValidator{})
-	validator.Register(&validators.StatusValidator{})
-	validator.Register(&validators.LogPrint{})
+	// validator.Register(&validators.StatusCodeValidator{})
+	// validator.Register(&validators.StatusValidator{})
+	// validator.Register(&validators.LogPrint{})
 	validator.Register(&validators.LogIncoming{})
 
 	// validator.RegisterFunc(validators.BodyValidateFunc)
