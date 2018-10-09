@@ -21,6 +21,8 @@ func init() {
 }
 
 func main() {
+
+	// fmt.Println("ADDRESS", os.GetEnv("ADDRESS"))
 	validator := validators.NewValidator()
 	validator.Register(&validators.StatusCodeValidator{})
 	validator.Register(&validators.StatusValidator{})
@@ -72,7 +74,7 @@ func main() {
 
 					if err != nil {
 						//TODO handle fail on error
-						validator.Validate(&v, r)
+						// validator.Validate(&v, r)
 						logger.WithFields(logrus.Fields{"End": time.Now()}).Error(fmt.Sprintf("Error running %s", err.Error()))
 					} else {
 						validator.Validate(&v, r)

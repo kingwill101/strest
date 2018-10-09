@@ -57,7 +57,7 @@ func SendRequest(r Request) (*http.Response, error) {
 	var req *http.Request
 	var err error
 
-	switch strings.ToLower(r.Method) {
+	switch ParseField(strings.ToLower(r.Method)) {
 	case "get":
 		method = "GET"
 	case "post":
@@ -78,7 +78,7 @@ func SendRequest(r Request) (*http.Response, error) {
 	}
 
 	//build url
-	urlBuilder, err := url.Parse(r.URL)
+	urlBuilder, err := url.Parse(ParseField(r.URL))
 
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func SendRequest(r Request) (*http.Response, error) {
 	q := urlBuilder.Query()
 	if len(r.Data.Params) > 0 {
 		for k, v := range r.Data.Params {
-			q.Add(k, v.(string))
+			q.Add(k, ParseField(v.(string)))
 		}
 		urlBuilder.RawQuery = q.Encode()
 	}
@@ -101,7 +101,7 @@ func SendRequest(r Request) (*http.Response, error) {
 			vals := url.Values{}
 			for k, v := range r.Data.Form {
 				fmt.Println(k, " ", v)
-				vals[k] = []string{v}
+				vals[k] = []string{ParseField(v)}
 			}
 
 			req, err = post(urlBuilder.String(), strings.NewReader(vals.Encode()))
@@ -113,12 +113,15 @@ func SendRequest(r Request) (*http.Response, error) {
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 		} else if len(r.Data.JSON) > 0 {
+
 			jso, jerr := json.Marshal(r.Data.JSON)
+
 			if jerr != nil {
 				return &http.Response{}, jerr
 			}
 
-			req, err = post(urlBuilder.String(), strings.NewReader(string(jso)))
+			req, err = post(
+				urlBuilder.String(), strings.NewReader(string(jso)))
 
 			if err != nil {
 				return &http.Response{}, err
@@ -127,7 +130,7 @@ func SendRequest(r Request) (*http.Response, error) {
 
 		} else {
 
-			req, err = post(urlBuilder.String(), bytes.NewReader([]byte(r.Data.Raw)))
+			req, err = post(urlBuilder.String(), bytes.NewReader([]byte(ParseField(r.Data.Raw))))
 
 			if err != nil {
 				return &http.Response{}, err
@@ -150,7 +153,7 @@ func SendRequest(r Request) (*http.Response, error) {
 	//add headers
 	if len(r.Data.Headers) > 0 {
 		for k, v := range r.Data.Headers {
-			req.Header.Set(k, v)
+			req.Header.Set(k, ParseField(v))
 		}
 
 	}
