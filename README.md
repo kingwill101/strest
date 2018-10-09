@@ -1,12 +1,13 @@
-My attempt at recreating https://github.com/eykrehbein/strest/blob/master/SCHEMA.md#delay
+# GoStrest
+My attempt at recreating https://github.com/eykrehbein/strest/
 
-it mostly works as expected.
+It mostly works as expected.
 
 usage 
 
 `strest -script req.yml`
 
-TODO
+### TODO
 
 example configuratation
 
@@ -16,14 +17,23 @@ requests:
   userRequest:
     failOnError: true
     url: 'http://localhost:8080/user'
-    method: POST
+    #may need to take consideration for additional method types
+    method: POST | GET 
     data:
         params: 
             name: testUser
         headers: 
             Authentication: Bearer
             SomemoreHeader: "asfsdfds"
+# data types supported for post requests JSON/FORM/RAW    
+
         form: 
+            username: kingwill101
+            password: somepassword
+        json: 
+            username: kingwill101
+            password: somepassword
+        raw: 
             username: kingwill101
             password: somepassword
     log: true
@@ -34,7 +44,28 @@ requests:
     delay: 500
 ```
 
-TODO
+## Template function calls
 
-allow the use of environment variables in strings
-Allow the specifying of types
+All template functions are golang based so you may need to have a look at 
+https://golang.org/pkg/text/template/ for better basic understanding. 
+
+### default template functions
+
+`ENV`
+
+```
+version: 1
+requests:
+  userRequest:
+    ...
+    url: 'http://{{ ENV "ADDRESS" }}:8080/user'
+    data:
+        params: 
+            name: '{{ ENV "PARAM"}}'
+    ...
+```
+
+
+# TODO
+
+1. Allow the specifying of types

@@ -21,17 +21,23 @@ requests:
 #     delay: 500
 
   helloWorld:
-    url: 'http://localhost:8080/helloworld'
+    url: 'http://{{ ENV "ADDRESS" }}/helloworld'
     method: POST
     data:
-        params: {name: testUser}
-        headers: {Authentication: Bearer}
+        params: 
+            name: '{{ ENV "PARAM"}}'
+        headers: 
+            Authentication: Bearer
+            SomeHEADER: '{{ ENV "BEARER" }}'
         json:
             username: kingwill101
-            password: somepassword
-    log: true 
+            password: dadfd
+    log: true
+    # delay: 5000
+    repeat: 2
     validation:
-        body: "Hello, World!"
+        body: '{"password":"somepassword","username":"kingwill101"}'
+
 
 #   fake:
 #     url: 'http://localhost:8080/fakeendpoint'
