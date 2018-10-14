@@ -202,6 +202,7 @@ func ReadBody(r *http.Response) (string, error) {
 
 }
 
+//RequestKeyExist search through list of requests provided
 func RequestKeyExist(key string, p Payload) bool {
 	if _, ok := p.Request[key]; !ok {
 		return false

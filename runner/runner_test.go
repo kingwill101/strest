@@ -1,8 +1,11 @@
 package runner
 
 import (
+	"net/http/httptest"
+	"os"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"gitlab.com/kingwill101/strest"
 	"gitlab.com/kingwill101/strest/validators"
 )
@@ -10,6 +13,29 @@ import (
 func getYaml() (strest.Payload, error) {
 	return strest.LoadYamlData("../test/test.yaml")
 }
+
+func getMainEngine() *gin.Engine {
+	r := gin.Default()
+
+	v1 := r.Group("/test")
+	{
+		v1.POST("/user", func(c *gin.Context) {
+			c.JSON(200, gin.H{
+				"username": "kingwill",
+				"password": "some password",
+			})
+		})
+
+	}
+	return r
+}
+
+// func TestEndopoints(t *testing.T) {
+// 	ts := httptest.NewServer(getMainEngine())
+// 	defer ts.Close()
+// 	os.Setenv("SERVER", ts.URL)
+
+// }
 
 func getValidators() *validators.Validator {
 	validator := validators.NewValidator()
@@ -21,6 +47,10 @@ func getValidators() *validators.Validator {
 	return validator
 }
 func TestRunTest(t *testing.T) {
+	ts := httptest.NewServer(getMainEngine())
+	defer ts.Close()
+	os.Setenv("SERVER", ts.URL)
+
 	v := getValidators()
 	p, err := getYaml()
 
