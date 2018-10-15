@@ -51,20 +51,61 @@ https://golang.org/pkg/text/template/ for better basic understanding.
 
 `using tempalte functions within JSON fields are not supported at this time`
 
-### default template functions
+### Default template functions
 
-`ENV`
+`ENV` 
+### fake data
+`MaleFirstName`
+
+`FemaleFirstName`
+
+`FirstName`
+
+`MaleLastName`
+
+`FemaleLastName`
+
+`LastName`
+
+`MalePatronymic`
+
+`FemalePatronymic`
+
+`Patronymic`
+
+`MaleFullNameWithPrefix`
+
+`FemaleFullNameWithPrefix`
+
+`FullNameWithPrefix`
+
+`MaleFullNameWithSuffix`
+
+`FemaleFullNameWithSuffix`
+
+`FullNameWithSuffix`
+
+`MaleFullName`
+
+`FemaleFullName`
+
+`FullName`
 
 ```
 version: 1
 requests:
   userRequest:
     ...
-    url: "http://{{ ENV `ADDRESS` }}:8080/user"
+    url: "http://{{ ENV `ADDRESS` }}:8080/test/user"
     data:
         params: 
-            name: '{{ ENV "PARAM"}}'
+            name: '{{ FullName }}'
     ...
+```
+debug output
+```
+[GIN] 2018/10/15 - 10:07:43 | 200 |      61.065µs |       127.0.0.1 | POST     /test/user?name=Walter+Sanchez
+
 ```
 
 
