@@ -20,6 +20,14 @@ func getMainEngine() *gin.Engine {
 	v1 := r.Group("/test")
 	{
 		v1.POST("/user", func(c *gin.Context) {
+
+			
+			c.JSON(200, gin.H{
+				"username": "kingwill",
+				"password": "some password",
+			})
+		})
+		v1.POST("/helloworld", func(c *gin.Context) {
 			c.JSON(200, gin.H{
 				"username": "kingwill",
 				"password": "some password",
@@ -30,19 +38,13 @@ func getMainEngine() *gin.Engine {
 	return r
 }
 
-// func TestEndopoints(t *testing.T) {
-// 	ts := httptest.NewServer(getMainEngine())
-// 	defer ts.Close()
-// 	os.Setenv("SERVER", ts.URL)
-
-// }
-
 func getValidators() *validators.Validator {
 	validator := validators.NewValidator()
 	// validator.Register(&validators.StatusCodeValidator{})
 	// validator.Register(&validators.StatusValidator{})
 	// validator.Register(&validators.LogPrint{})
-	validator.Register(&validators.LogIncoming{})
+	validator.Register(&validators.BodyValidator{})
+	// validator.Register(&validators.LogIncoming{})
 
 	return validator
 }

@@ -46,7 +46,7 @@ func LaunchRequest(k string, v strest.Request, validator *validators.Validator) 
 		"start":   requestStartTime,
 	})
 	// log.Info("Running [%s]\n", k)
-	fmt.Printf("Running [%s]\n", k)
+	logger.Infof("Running [%s]\n", k)
 	var repeat int
 	if v.Repeat == 0 {
 		repeat = 1
@@ -61,7 +61,7 @@ func LaunchRequest(k string, v strest.Request, validator *validators.Validator) 
 		loopWg.Add(1)
 		go func() {
 			if v.Delay > 0 {
-				strest.GetLogger().Info("Delaying", k, "for", v.Delay)
+				logger.Infof("Delaying %s for %d", k, v.Delay)
 				time.Sleep(time.Duration(v.Delay) * time.Millisecond)
 			}
 			r, err := strest.SendRequest(v)
@@ -71,6 +71,7 @@ func LaunchRequest(k string, v strest.Request, validator *validators.Validator) 
 				// validator.Validate(&v, r)
 				logger.WithFields(logrus.Fields{"End": time.Now()}).Error(fmt.Sprintf("Error running %s", err.Error()))
 			} else {
+				logger.Info("About to validate")
 				validator.Validate(&v, r)
 
 			}

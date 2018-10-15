@@ -9,12 +9,20 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
+)
+
+const (
+	MethodPOST   string = "POST"
+	MethodPUT    string = "PUT"
+	MethodGET    string = "GET"
+	MethodPATCH  string = "PATCH"
+	MethodOPTION string = "OPTION"
+	MethodHEAD   string = "HEAD"
 )
 
 var log *logrus.Logger
@@ -60,13 +68,17 @@ func SendRequest(r Request) (*http.Response, error) {
 
 	switch ParseField(strings.ToLower(r.Method)) {
 	case "get":
-		method = "GET"
+		method = MethodGET
 	case "post":
-		method = "POST"
+		method = MethodPOST
+	case "patch":
+		method = MethodPATCH
 	case "put":
-		method = "PUT"
+		method = MethodPUT
 	case "option":
-		method = "OPTION"
+		method = MethodOPTION
+	case "head":
+		method = MethodHEAD
 	default:
 		log.Fatal("Only Get and Post supported")
 	}
@@ -122,14 +134,6 @@ func SendRequest(r Request) (*http.Response, error) {
 				return &http.Response{}, jerr
 			}
 
-			input_quoted := strconv.Quote(string(jso))
-			input_unquoted, err := strconv.Unquote(input_quoted)
-			if err != nil {
-				panic("oops " + err.Error())
-			}
-
-			fmt.Println("fasdfad --> ", ParseField(input_unquoted))
-
 			req, err = post(
 				urlBuilder.String(), strings.NewReader(string(jso)))
 
@@ -178,7 +182,6 @@ func post(url string, body io.Reader) (req *http.Request, err error) {
 	if err != nil {
 		return nil, err
 	}
-	// req.Header.Set("Content-Type", bodyType)
 	return
 }
 

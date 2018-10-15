@@ -2,15 +2,15 @@ version: 1
 requests:
   userRequest:
     failOnError: true
-    url: 'http://{{ ENV "SERVER" }}/user'
+    url: '{{ ENV "SERVER" }}/test/user'
     method: POST
     data:
         params: 
-            name: testUser
+            name: '{{ FullName }}'
         headers: 
             Authentication: Bearer
             SomemoreHeader: "asfsdfds"
-        json: 
+        form: 
             username: kingwill101
             password: somepassword
     log: true
@@ -18,55 +18,55 @@ requests:
         body: "Hello, World!"
         statusCode: 200
     # repeat: 3
-    delay: 500
+    # delay: 500
 
-  helloWorld:
-    url: 'http://{{ ENV "SERVER" }}/helloworld'
-    method: POST
-    data:
-        params: 
-            name: '{{ ENV "PARAM"}}'
-        headers: 
-            Authentication: Bearer
-            SomeHEADER: '{{ ENV "BEARER" }}'
-        json:
-            username: kingwill101
-            password: dadfd
-    log: true
-    # delay: 5000
-    repeat: 2
-    validation:
-        body: '{"password":"somepassword","username":"kingwill101"}'
+#   helloWorld:
+#     url: 'http://{{ ENV "SERVER" }}/test/helloworld'
+#     method: POST
+#     data:
+#         params: 
+#             name: '{{ ENV "PARAM"}}'
+#         headers: 
+#             Authentication: Bearer
+#             SomeHEADER: '{{ ENV "BEARER" }}'
+#         json:
+#             username: kingwill101
+#             password: dadfd
+#     log: true
+#     # delay: 5000
+#     # repeat: 2
+#     validation:
+#         body: '{"password":"somepassword","username":"kingwill101"}'
 
 
-  fake:
-    url: 'http://{{ ENV "SERVER" }}/fakeendpoint'
-    timeout: 500
-    method: GET
-    data:
-        params: {name: testUser}
-        headers: {Authentication: Bearer}
-    log: true 
-    validation:
-        body: "Hello, World!"
+#   fake:
+#     url: 'http://{{ ENV "SERVER" }}/fakeendpoint'
+#     timeout: 500
+#     method: GET
+#     data:
+#         params: {name: testUser}
+#         headers: {Authentication: Bearer}
+#     log: true 
+#     validation:
+#         body: "Hello, World!"
 
-  emptyValidation:
-    url: 'http://{{ ENV "SERVER" }}/user'
-    method: GET
-    data:
-        params: {name: emptyValidation}
-        headers: {Authentication: Bearer}
-    log: true
+#   emptyValidation:
+#     url: 'http://{{ ENV "SERVER" }}/user'
+#     method: GET
+#     data:
+#         params: {name: emptyValidation}
+#         headers: {Authentication: Bearer}
+#     log: true
 
-  notEmptyValidation:
-    url: 'http://{{ ENV "SERVER" }}/user'
-    method: GET
-    data:
-        params: {name: emptyValidation}
-        headers: {Authentication: Bearer}
-    log: true
-    validation:
-        body: "Not empty"
-        # status: 400
+#   notEmptyValidation:
+#     url: 'http://{{ ENV "SERVER" }}/user'
+#     method: GET
+#     data:
+#         params: {name: emptyValidation}
+#         headers: {Authentication: Bearer}
+#     log: true
+#     validation:
+#         body: "Not empty"
+#         # status: 400
 
 

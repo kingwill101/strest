@@ -35,6 +35,7 @@ func (s StatusValidator) Validate(sreq *strest.Request, res *http.Response) bool
 type BodyValidator struct {
 }
 
+//Validate body
 func (s BodyValidator) Validate(sreq *strest.Request, res *http.Response) bool {
 	fmt.Println("[body]")
 	body, err := strest.ReadBody(res)
@@ -45,12 +46,12 @@ func (s BodyValidator) Validate(sreq *strest.Request, res *http.Response) bool {
 	body = strings.TrimRight(body, "\n")
 	if sreq.Validation.Body != body {
 
-		fmt.Printf("\tGot - %s\n\tExpected - %s \n", body, sreq.Validation.Body)
+		log.Fatalf("\tGot - %s\n\tExpected - %s \n", body, sreq.Validation.Body)
 		return false
 
-	} else {
-		fmt.Println("\tSuccess [body] checks out")
 	}
+	fmt.Println("\tSuccess [body] checks out")
+
 	return true
 }
 
@@ -58,6 +59,7 @@ func (s BodyValidator) Validate(sreq *strest.Request, res *http.Response) bool {
 type StatusCodeValidator struct {
 }
 
+//Validate status code
 func (s StatusCodeValidator) Validate(sreq *strest.Request, res *http.Response) bool {
 	fmt.Println("[body]")
 	body, err := strest.ReadBody(res)
