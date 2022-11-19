@@ -2,98 +2,37 @@ package validators
 
 import (
 	"fmt"
-	"log"
+	"github.com/sirupsen/logrus"
+	"gitlab.com/kingwill101/strest"
 	"net/http"
-	"strings"
-
-	strest "gitlab.com/kingwill101/strest"
 )
 
-//StatusValidator validate status
-type StatusValidator struct {
-}
-
-func (s StatusValidator) Validate(sreq *strest.Request, res *http.Response) bool {
-	if sreq.Validation.StatusCode == 0 {
-		return false
-	}
-
-	fmt.Println("[status code]")
-
-	if sreq.Validation.StatusCode != res.StatusCode {
-
-		fmt.Printf("\tGot - %d\n\tExpected - %d \n", res.StatusCode, sreq.Validation.StatusCode)
-		return false
-
-	} else {
-		fmt.Println("\tSuccess [status] checks out")
-	}
-	return true
-}
-
-//BodyValidator validate status
-type BodyValidator struct {
-}
-
-//Validate body
-func (s BodyValidator) Validate(sreq *strest.Request, res *http.Response) bool {
-	fmt.Println("[body]")
-	body, err := strest.ReadBody(res)
-	if err != nil {
-		log.Fatal(err.Error())
-		return false
-	}
-	body = strings.TrimRight(body, "\n")
-	if sreq.Validation.Body != body {
-
-		log.Fatalf("\tGot - %s\n\tExpected - %s \n", body, sreq.Validation.Body)
-		return false
-
-	}
-	fmt.Println("\tSuccess [body] checks out")
-
-	return true
-}
-
-//StatusCodeValidator validate status
+// StatusCodeValidator validate status
 type StatusCodeValidator struct {
 }
 
-//Validate status code
-func (s StatusCodeValidator) Validate(sreq *strest.Request, res *http.Response) bool {
-	fmt.Println("[body]")
-	body, err := strest.ReadBody(res)
-	if err != nil {
-		log.Fatal(err.Error())
-		return false
+// Validate status code
+func (s StatusCodeValidator) Validate(sreq *strest.Request, res *http.Response, logger *logrus.Entry) bool {
+
+	entry := logger.WithField("validator", "status-code")
+	for k, v := range sreq.Validation {
+		entryLog := entry.WithFields(logrus.Fields{
+			"validation_tag": k,
+		})
+		if v.StatusCode == 0 {
+			continue
+		}
+		if v.StatusCode == res.StatusCode {
+			entryLog.Infof("checks out -  expected %d  got %d", v.StatusCode, res.StatusCode)
+		} else {
+			failureMsg := fmt.Sprintf("status validation failed expected %d  got %d", v.StatusCode, res.StatusCode)
+			if sreq.FailOnError {
+				entryLog.Fatal(failureMsg)
+			}
+
+			entryLog.Error(failureMsg)
+		}
 	}
-	body = strings.TrimRight(body, "\n")
-	if sreq.Validation.Body != body {
 
-		fmt.Printf("\tGot - %s\n\tExpected - %s \n", body, sreq.Validation.Body)
-		return false
-
-	} else {
-		fmt.Println("\tSuccess [body] checks out")
-	}
-	return true
-}
-
-func BodyValidateFunc(sreq *strest.Request, res *http.Response) bool {
-	fmt.Println("[body]")
-	body, err := strest.ReadBody(res)
-	if err != nil {
-		log.Fatal(err.Error())
-		return false
-	}
-	body = strings.TrimRight(body, "\n")
-	if sreq.Validation.Body != body {
-
-		fmt.Printf("\tGot - %s\n\tExpected - %s \n", body, sreq.Validation.Body)
-		return false
-
-	} else {
-		fmt.Println("\tSuccess [body] checks out")
-	}
 	return true
 }
