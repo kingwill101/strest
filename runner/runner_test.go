@@ -21,7 +21,6 @@ func getMainEngine() *gin.Engine {
 	{
 		v1.POST("/user", func(c *gin.Context) {
 
-			
 			c.JSON(200, gin.H{
 				"username": "kingwill",
 				"password": "some password",
@@ -51,7 +50,7 @@ func getValidators() *validators.Validator {
 func TestRunTest(t *testing.T) {
 	ts := httptest.NewServer(getMainEngine())
 	defer ts.Close()
-	os.Setenv("SERVER", ts.URL)
+	_ = os.Setenv("SERVER", ts.URL)
 
 	v := getValidators()
 	p, err := getYaml()

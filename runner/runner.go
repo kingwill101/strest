@@ -6,34 +6,61 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"gitlab.com/kingwill101/strest"
 	"gitlab.com/kingwill101/strest/validators"
-
-	"github.com/sirupsen/logrus"
+	"golang.org/x/exp/slices"
 )
 
-var log *logrus.Logger
-
-func init() {
-	log = strest.GetLogger()
-}
-
-//RunTest execute all test
+// RunTest execute all test
 func RunTest(validator *validators.Validator, p strest.Payload) {
 
-	var wg sync.WaitGroup
+	strest.GetLogger().Debug("Warming up test runners ")
+	strest.GetLogger().Debug("using async - ", p.Async)
 
-	for k, v := range p.Request {
+	var called []string
 
-		wg.Add(1)
+	for {
+		if len(called) < len(p.Request) {
 
-		go func(k string, v strest.Request, validator *validators.Validator) {
-			LaunchRequest(k, v, validator)
-			wg.Done()
-		}(k, v, validator)
+			for k, v := range p.Request {
+
+				if slices.Contains(called, k) {
+					continue
+				}
+
+				if len(v.DependsOn) > 0 {
+					dependenciesSatisfied := true
+
+					for _, dependency := range v.DependsOn {
+						if !slices.Contains(called, dependency) {
+							dependenciesSatisfied = false
+						} else {
+							strest.GetLogger().Infof("Dependency already satisfied %s", dependency)
+						}
+					}
+
+					if dependenciesSatisfied {
+						LaunchRequest(k, *v, validator)
+						called = append(called, k)
+						println("\n\n\n")
+					}
+
+				} else {
+
+					if len(v.DependsOn) == 0 {
+
+						println("\n\n\n")
+						LaunchRequest(k, *v, validator)
+						called = append(called, k)
+					}
+				}
+			}
+		} else {
+			break
+		}
 	}
 
-	wg.Wait()
 }
 
 // LaunchRequest launch individual request
