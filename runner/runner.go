@@ -36,51 +36,66 @@ func RunTest(validator *validators.Validator, p strest.Payload) {
 	wg.Wait()
 }
 
-//LaunchRequest launch individual request
-func LaunchRequest(k string, v strest.Request, validator *validators.Validator) {
+// LaunchRequest launch individual request
+func LaunchRequest(k string, request strest.Request, validator *validators.Validator) {
 
 	requestStartTime := time.Now()
 
-	logger := log.WithFields(logrus.Fields{
-		"request": strings.TrimRight(k, "\n"),
-		"start":   requestStartTime,
+	logger := strest.GetLogger().WithFields(logrus.Fields{
+		"request":     strings.TrimRight(k, "\n"),
+		"using async": request.Async,
+		"launched":    requestStartTime,
 	})
-	// log.Info("Running [%s]\n", k)
-	logger.Infof("Running [%s]\n", k)
+
+	logger.Infof("Running [%s]", k)
 	var repeat int
-	if v.Repeat == 0 {
+	if request.Repeat == 0 {
 		repeat = 1
 	} else {
-		repeat = v.Repeat
+		repeat = request.Repeat
 	}
 
 	var loopWg sync.WaitGroup
 
 	for i := 0; i < repeat; i++ {
 
-		loopWg.Add(1)
-		go func() {
-			if v.Delay > 0 {
-				logger.Infof("Delaying %s for %d", k, v.Delay)
-				time.Sleep(time.Duration(v.Delay) * time.Millisecond)
+		requestSender := func() {
+
+			logger.Debug("request launched ")
+			if request.Delay > 0 {
+				logger.Debug("Delaying %s for %d", k, request.Delay)
+				time.Sleep(time.Duration(request.Delay) * time.Millisecond)
 			}
-			r, err := strest.SendRequest(v)
+			r, err := strest.SendRequest(request)
 
 			if err != nil {
 				//TODO handle fail on error
-				// validator.Validate(&v, r)
+				// validator.Validate(&request, r)
 				logger.WithFields(logrus.Fields{"End": time.Now()}).Error(fmt.Sprintf("Error running %s", err.Error()))
 			} else {
-				logger.Info("About to validate")
-				validator.Validate(&v, r)
-
+				logger.Debug("About to validate")
+				validator.Validate(&request, r, logger)
 			}
-			loopWg.Done()
 
-		}()
+			if request.Async {
+				loopWg.Done()
+			}
+		}
 
+		if request.Async {
+			loopWg.Add(1)
+			go requestSender()
+
+		} else {
+			logger.Debug("Launching ")
+			requestSender()
+		}
 	}
-	loopWg.Wait()
+
+	if request.Async {
+		loopWg.Wait()
+	}
+
 	fmt.Println("finished in ", time.Since(requestStartTime))
 
 }
