@@ -31,11 +31,30 @@ func RunTest(validator *validators.Validator, p strest.Payload) {
 
 			for k, v := range p.Request {
 
+				logDependencies := func() {
+					dependencies := ""
+
+					for index, dep := range v.DependsOn {
+						if index == 0 {
+							dependencies += "["
+						}
+
+						dependencies += fmt.Sprintf(" %s ", dep)
+
+						if index == len(v.DependsOn)-1 {
+							dependencies += "]"
+						}
+					}
+
+					strest.GetLogger().Info("Dependencies ", dependencies)
+				}
+
 				if slices.Contains(called, k) {
 					continue
 				}
 
 				if len(v.DependsOn) > 0 {
+
 					dependenciesSatisfied := true
 
 					for _, dependency := range v.DependsOn {
@@ -44,24 +63,24 @@ func RunTest(validator *validators.Validator, p strest.Payload) {
 						}
 						if slices.Contains(requestNames, dependency) && !slices.Contains(called, dependency) {
 							dependenciesSatisfied = false
-						} else {
-							strest.GetLogger().Infof("Dependency already satisfied %s", dependency)
 						}
 					}
 
 					if dependenciesSatisfied {
+						logDependencies()
 						LaunchRequest(k, *v, validator)
 						called = append(called, k)
-						println("\n\n\n")
+						println("\n\n")
 					}
 
 				} else {
 
 					if len(v.DependsOn) == 0 {
 
-						println("\n\n\n")
 						LaunchRequest(k, *v, validator)
 						called = append(called, k)
+						println("\n\n")
+
 					}
 				}
 			}
