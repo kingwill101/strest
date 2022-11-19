@@ -1,71 +1,123 @@
 version: 1
 requests:
-#   userRequest:
-#     failOnError: true
-#     url: 'http://localhost:8080/user'
-#     method: POST
-#     data:
-#         params: 
-#             name: testUser
-#         headers: 
-#             Authentication: Bearer
-#             SomemoreHeader: "asfsdfds"
-#         form: 
-#             username: kingwill101
-#             password: somepassword
-#     log: true
-#     validation:
-#         body: "Hello, World!"
-#         statusCode: 200
-#     # repeat: 3
-#     delay: 500
+    userRequest:
+        failOnError: false
+        url: 'http://localhost:8080/user'
+        method: POST
+        data:
+            params:
+                name: testUser
+            headers:
+                Authentication: Bearer
+                SomemoreHeader: "asfsdfds"
+            form:
+                username: kingwill101
+                password: somepassword
+        log: true
+        validation:
+            check1:
+                body: "Hello, World!"
+                statusCode: 200
+        # repeat: 3
+        delay: 500
+    helloWorld:
+        environment:
+            SOMETHING: password
 
-  helloWorld:
-    url: 'http://localhost:8080/helloworld'
-    method: POST
-    data:
-        params: 
-            name: 'Glenfor d'
-        headers: 
-            Authentication: Bearer
-        json:
-            username: kingwill101
-            password: "{{ ENV `SOMETHING`}}"
-    log: true
-    # delay: 5000
-    # repeat: 2
-    # validation:
-    #     body: '{"password":"somepassword","username":"kingwill101"}'
+        dependsOn:
+            - fake
 
-
-#   fake:
-#     url: 'http://localhost:8080/fakeendpoint'
-#     timeout: 500
-#     method: GET
-#     data:
-#         params: {name: testUser}
-#         headers: {Authentication: Bearer}
-#     log: true 
-#     validation:
-#         body: "Hello, World!"
-
-#   emptyValidation:
-#     url: 'http://localhost:8080/user'
-#     method: GET
-#     data:
-#         params: {name: emptyValidation}
-#         headers: {Authentication: Bearer}
-#     log: true
-
-#   notEmptyValidation:
-#     url: 'http://localhost:8080/user'
-#     method: GET
-#     data:
-#         params: {name: emptyValidation}
-#         headers: {Authentication: Bearer}
-#     log: true
-#     validation:
-#         body: "Not empty"
-#         # status: 400
+        url: 'http://localhost:8080/helloworld'
+        method: POST
+        data:
+            params:
+                name: 'Glenfor d'
+            headers:
+                Authentication: Bearer
+            json:
+                username: kingwill101
+                password: "{{ ENV `SOMETHING`}}"
+        log: true
+        delay: 1
+        repeat: 1
+        async: false
+    fake:
+        url: 'http://localhost:8080/fakeendpoint'
+        timeout: 500
+        method: GET
+        dependsOn:
+            - fake2
+        data:
+            params:
+                name: testUser
+            headers:
+                Authentication: Bearer
+    fake5:
+        url: 'http://localhost:8080/fakeendpoint'
+        timeout: 500
+        method: GET
+        dependsOn:
+            - fake
+            - fake2
+            - fake3
+            - fake4
+        data:
+            params:
+                name: testUser
+            headers:
+                Authentication: Bearer
+    fake2:
+        url: 'http://localhost:8080/fakeendpoint'
+        timeout: 500
+        method: GET
+        dependsOn:
+            - fake3
+        data:
+            params:
+                name: testUser
+            headers:
+                Authentication: Bearer
+    fake3:
+        dependsOn:
+            - fake4
+        url: 'http://localhost:8080/fakeendpoint'
+        timeout: 500
+        method: GET
+        data:
+            params:
+                name: testUser
+            headers:
+                Authentication: Bearer
+    fake4:
+        url: 'http://localhost:8080/fakeendpoint'
+        timeout: 500
+        method: GET
+        data:
+            params:
+                name: testUser
+            headers:
+                Authentication: Bearer
+    emptyValidation:
+        url: 'http://localhost:8080/user'
+        method: GET
+        data:
+            params:
+                name: emptyValidation
+            headers:
+                Authentication: Bearer
+        log: true
+    notEmptyValidation:
+        url: 'http://localhost:8080/user'
+        method: GET
+        data:
+            params:
+                name: emptyValidation
+            headers:
+                Authentication: Bearer
+        log: true
+        validation:
+            notEmptyCheck:
+                body: "Not empty"
+                code: 400
 
 

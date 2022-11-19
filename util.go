@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -25,32 +25,30 @@ const (
 	MethodHEAD   string = "HEAD"
 )
 
-var log *logrus.Logger
-
-func init() {
-	log = GetLogger()
-}
-
-//GetLogger project logger
+// GetLogger project logger
 func GetLogger() *logrus.Logger {
-	// logrus.SetFormatter(&logrus.JSONFormatter{})
-	logrus.SetOutput(os.Stdout)
-	// logrus.SetLevel(logrus.WarnLevel)
-	return logrus.New()
+
+	return &logrus.Logger{
+		Out:       os.Stderr,
+		Formatter: new(logrus.TextFormatter),
+		Hooks:     make(logrus.LevelHooks),
+		Level:     logrus.InfoLevel,
+	}
+
 }
 
-//LoadYamlData load from yaml file
+// LoadYamlData load from yaml file
 func LoadYamlData(filename string) (Payload, error) {
 	payload := Payload{}
 
-	request, err := ioutil.ReadFile(filename)
+	request, err := os.ReadFile(filename)
 
 	if err != nil {
-		log.Fatalf("Failed to open %s - %s", filename, err.Error())
+		GetLogger().Fatalf("Failed to open %s - %s", filename, err.Error())
 		return Payload{}, err
 	}
 
-	err = yaml.Unmarshal([]byte(request), &payload)
+	err = yaml.Unmarshal(request, &payload)
 	if err != nil {
 		log.Printf("Error marshaling : %v", err)
 		return payload, err
@@ -59,7 +57,7 @@ func LoadYamlData(filename string) (Payload, error) {
 	return payload, nil
 }
 
-//SendRequest make http request
+// SendRequest make http request
 func SendRequest(r Request) (*http.Response, error) {
 
 	var method string
@@ -69,22 +67,28 @@ func SendRequest(r Request) (*http.Response, error) {
 	switch ParseField(strings.ToLower(r.Method)) {
 	case "get":
 		method = MethodGET
+		break
 	case "post":
 		method = MethodPOST
+		break
 	case "patch":
 		method = MethodPATCH
+		break
 	case "put":
 		method = MethodPUT
+		break
 	case "option":
 		method = MethodOPTION
+		break
 	case "head":
 		method = MethodHEAD
+		break
 	default:
 		log.Fatal("Only Get and Post supported")
 	}
 
 	//timeout
-	timeout := time.Duration(time.Duration(r.Timeout) * time.Millisecond)
+	timeout := time.Duration(r.Timeout) * time.Millisecond
 
 	client := http.Client{
 		Timeout: timeout,
@@ -109,15 +113,15 @@ func SendRequest(r Request) (*http.Response, error) {
 	if method == "POST" {
 		// return c.Post(url, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
 		if len(r.Data.Form) > 0 {
-			log.Info("Form request")
+			GetLogger().Info("Form request")
 
-			vals := url.Values{}
+			values := url.Values{}
 			for k, v := range r.Data.Form {
 				fmt.Println(k, " ", v)
-				vals[k] = []string{ParseField(v)}
+				values[k] = []string{ParseField(v)}
 			}
 
-			req, err = post(urlBuilder.String(), strings.NewReader(vals.Encode()))
+			req, err = post(urlBuilder.String(), strings.NewReader(values.Encode()))
 
 			if err != nil {
 				return &http.Response{}, err
@@ -126,21 +130,20 @@ func SendRequest(r Request) (*http.Response, error) {
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 		} else if len(r.Data.JSON) > 0 {
-			fmt.Println("JSON REQUEST")
 
-			jso, jerr := json.Marshal(r.Data.JSON)
+			marshal, jsonError := json.Marshal(r.Data.JSON)
 
-			if jerr != nil {
-				return &http.Response{}, jerr
+			if jsonError != nil {
+				return &http.Response{}, jsonError
 			}
 
 			req, err = post(
-				urlBuilder.String(), strings.NewReader(string(jso)))
+				urlBuilder.String(), strings.NewReader(string(marshal)))
 
 			if err != nil {
 				return &http.Response{}, err
 			}
-			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("Content-Type", "application/marshal")
 
 		} else {
 
@@ -185,27 +188,32 @@ func post(url string, body io.Reader) (req *http.Request, err error) {
 	return
 }
 
-//ReadBody process response body
+// ReadBody process response body
 func ReadBody(r *http.Response) (string, error) {
-	defer r.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(r.Body)
 	var bodyBytes []byte
 	var err error
 
-	bodyBytes, err = ioutil.ReadAll(r.Body)
+	bodyBytes, err = io.ReadAll(r.Body)
 
 	if err != nil {
 		log.Println("", err)
-		return "", fmt.Errorf("Error parsing request body - %s", err.Error())
+		return "", fmt.Errorf("error parsing request body - %s", err.Error())
 	}
 
 	// Restore the io.ReadCloser to its original state
-	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
 	return string(bodyBytes), nil
 
 }
 
-//RequestKeyExist search through list of requests provided
+// RequestKeyExist search through list of requests provided
 func RequestKeyExist(key string, p Payload) bool {
 	if _, ok := p.Request[key]; !ok {
 		return false

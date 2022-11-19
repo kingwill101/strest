@@ -25,7 +25,7 @@ func TestEmptyValidation(t *testing.T) {
 		t.Error("key emptyValidation is missing")
 	}
 
-	if (Validation{}) != y.Request["emptyValidation"].Validation {
+	if _, ok := y.Request["emptyValidation"].Validation["valid"]; ok {
 		t.Error("Validation should be empty")
 	}
 

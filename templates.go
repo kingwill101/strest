@@ -8,20 +8,18 @@ import (
 	"github.com/icrowley/fake"
 )
 
-//ParseField parse fields that need access to template functions
+// ParseField parse fields that need access to template functions
 func ParseField(in string) string {
 	tmp, err := getTemplate().Parse(in)
 	if err != nil {
-		log.Fatal(err)
+		GetLogger().Fatal(err)
 	}
 	buf := bytes.Buffer{}
 
 	err = tmp.Execute(&buf, nil)
 	if err != nil {
-		log.Fatal(err)
+		GetLogger().Fatal(err)
 	}
-	// fmt.Println("PARSE  IN -->", in)
-	// fmt.Println("PARSE OUT -->", buf.String())
 
 	return buf.String()
 }
@@ -55,6 +53,5 @@ func tmpFuncs() template.FuncMap {
 }
 
 func getEnv(in string) string {
-	log.Println("Searching ", in, " --> ", os.Getenv(in))
 	return os.Getenv(in)
 }

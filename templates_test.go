@@ -23,7 +23,7 @@ func TestParseField(t *testing.T) {
 		{
 			name: "environ",
 			args: args{in: `{{ ENV "HOME" }}`},
-			want: "/home/kingwill101",
+			want: os.Getenv("HOME"),
 		},
 		{
 			name: "environ2",

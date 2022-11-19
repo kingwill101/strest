@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -21,14 +20,11 @@ func init() {
 
 func main() {
 
-	// fmt.Println("ADDRESS", os.GetEnv("ADDRESS"))
 	validator := validators.NewValidator()
-	// validator.Register(&validators.StatusCodeValidator{})
-	// validator.Register(&validators.StatusValidator{})
-	// validator.Register(&validators.LogPrint{})
+	validator.Register(&validators.StatusCodeValidator{})
+	validator.Register(&validators.BodyValidator{})
+	validator.Register(&validators.LogPrint{})
 	validator.Register(&validators.LogIncoming{})
-
-	// validator.RegisterFunc(validators.BodyValidateFunc)
 
 	testTime := time.Now()
 
@@ -37,9 +33,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	p.Load()
+
 	runner.RunTest(validator, p)
 
-	fmt.Println("\nCompleted in - ", time.Since(testTime))
+	log.Println("Completed in - ", time.Since(testTime))
 
 	// runServer()
 }
