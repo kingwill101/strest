@@ -20,6 +20,12 @@ func RunTest(validator *validators.Validator, p strest.Payload) {
 
 	var called []string
 
+	var requestNames []string
+
+	for k := range p.Request {
+		requestNames = append(requestNames, k)
+	}
+
 	for {
 		if len(called) < len(p.Request) {
 
@@ -33,7 +39,10 @@ func RunTest(validator *validators.Validator, p strest.Payload) {
 					dependenciesSatisfied := true
 
 					for _, dependency := range v.DependsOn {
-						if !slices.Contains(called, dependency) {
+						if !slices.Contains(requestNames, dependency) {
+							strest.GetLogger().Warnf("Unknown dependency %s", dependency)
+						}
+						if slices.Contains(requestNames, dependency) && !slices.Contains(called, dependency) {
 							dependenciesSatisfied = false
 						} else {
 							strest.GetLogger().Infof("Dependency already satisfied %s", dependency)
